@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: es-node
+    environment:
+      - node.name=es-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - network.bind_host=0.0.0.0
+      - network.host=0.0.0.0
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-node-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+volumes:
+  es-node-data:
+    driver: local
