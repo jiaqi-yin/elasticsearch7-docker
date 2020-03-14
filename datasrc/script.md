@@ -441,3 +441,95 @@ curl --request GET 'localhost:9200/movies/_search' \
 }'
 ```
 
+## Search as you type
+
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"match_phrase_prefix": {
+			"title": {
+			    "query": "star trek",
+			    "slop": 10
+			}
+		}
+	}
+}'
+```
+
+## N-Grams
+
+Indexing n-grams
+
+```
+curl --request PUT 'localhost:9200/movies' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"settings": {
+		"analysis": {
+			"filter": {
+				"autocomplete_filter": {
+					"type": "edge_ngram",
+					"min_gram": 1,
+					"max_gram": 20
+				}
+			},
+			"analyzer": {
+				"autocomplete": {
+					"type": "custom",
+					"tokenizer": "standard",
+					"filter": [
+						"lowercase",
+						"autocomplete_filter"
+					]
+				}
+			}
+		}
+	}
+}'
+```
+```
+curl --request GET 'localhost:9200/movies/_analyze' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"analyzer": "autocomplete",
+	"text": "Sta"
+}'
+```
+
+Map the field with it
+
+```
+curl --request PUT 'localhost:9200/movies/_mapping' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"properties": {
+		"title": {
+			"type": "text",
+			"analyzer": "autocomplete"
+		}
+	}
+}'
+```
+```
+curl --request PUT 'localhost:9200/_bulk' \
+--header 'Content-Type: application/json' \
+--data-binary @movies.json
+```
+
+Only use n-grams on the index side!
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"match": {
+			"title": {
+				"query": "star tr",
+				"analyzer": "standard"
+			}
+		}
+	}
+}'
+```
