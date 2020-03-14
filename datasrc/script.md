@@ -228,6 +228,20 @@ curl --request GET 'localhost:9200/movies/_search' \
 }'
 ```
 
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"bool": {
+			"must": {"match": {"genre": "Sci-Fi"}},
+			"must_not": {"match": {"title": "trek"}},
+			"filter": {"range": {"year": {"gte": 2010, "lt": 2015}}}
+		}
+	}
+}'
+```
+
 ### Some types of filters
 
 term: filter by exact values
@@ -315,3 +329,115 @@ curl --request GET 'localhost:9200/movies/_search' \
 	}
 }'
 ```
+
+## Pagination
+
+```
+curl --request GET 'localhost:9200/movies/_search?size=2&from=2' \
+--header 'Content-Type: application/json'
+```
+
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"from": 2,
+	"size": 2,
+	"query": {
+		"match": {
+			"genre": "Sci-Fi"
+		}
+	}
+}'
+```
+
+## Sorting
+
+Simple
+
+```
+curl --request GET 'localhost:9200/movies/_search?sort=year' \
+--header 'Content-Type: application/json'
+```
+
+More complex
+```
+curl --request PUT 'localhost:9200/movies' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "mappings": {
+        "properties": {
+            "title": {
+                "type": "text",
+                "fields": {
+                	"raw": {
+                		"type": "keyword"
+                	}
+                }
+            }
+        }
+    }
+}'
+```
+```
+curl --request GET 'localhost:9200/movies/_search?sort=title.raw' \
+--header 'Content-Type: application/json'
+```
+
+## Fuzzy queries
+
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"fuzzy": {
+			"title": {"value": "intrsteller", "fuzziness": 2}
+		}
+	}
+}'
+```
+
+Auto fuzziness
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"fuzzy": {
+			"title": {"value": "intrsteller", "fuzziness": 2}
+		}
+	}
+}'
+```
+
+## Partial matching
+
+### Prefix queries on strings
+
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"prefix": {
+			"year": "201"
+		}
+	}
+}'
+```
+
+### Wildcard queries
+
+```
+curl --request GET 'localhost:9200/movies/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"query": {
+		"wildcard": {
+			"year": "1*"
+		}
+	}
+}'
+```
+
