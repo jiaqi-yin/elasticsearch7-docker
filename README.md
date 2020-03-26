@@ -3,7 +3,7 @@ To start a single-node Elasticsearch cluster for development or testing
 docker-compose -f docker-compose-single-node.yml up
 ```
 
-To get a three-node Elasticsearch cluster up and running in Docker (Make sure Docker Engine is allotted at least 4GiB of memory)
+To bring up the three-node Elasticsearch cluster and Kibana (Make sure Docker Engine is allotted at least 4GiB of memory)
 ```
 docker-compose -f docker-compose-multi-node.yml up
 ```
