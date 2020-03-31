@@ -1,4 +1,4 @@
-To start a single-node Elasticsearch cluster for development or testing
+To start a single-node elastic cluster for development or testing
 ```
 docker-compose -f docker-compose-single-node.yml up
 ```
